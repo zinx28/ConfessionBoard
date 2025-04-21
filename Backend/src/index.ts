@@ -12,7 +12,7 @@ async function StartServer() {
   app.use(logger());
 
   app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'http://127.0.0.1:3000',
     allowMethods: ['GET', 'OPTIONS', 'POST'], 
     exposeHeaders: ['Content-Type'],
     credentials: true
