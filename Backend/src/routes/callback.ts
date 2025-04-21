@@ -7,7 +7,7 @@ export default function (app: Hono) {
   app.post("/api/v1/discord", async (c) => {
     try {
       const { code, needAccount } = await c.req.json();
-
+ 
       console.log(code);
       const params = new URLSearchParams();
       params.append("client_id", process.env.CLIENT_ID!);
@@ -80,14 +80,15 @@ export default function (app: Hono) {
             console.log("FOUND A ACCOUNTHAHAHAH!!");
           }
 
+          console.log(process.env.NODE_ENV === "production");
           setCookie(c, "auth_token", token, {
             path: "/",
             secure: process.env.NODE_ENV === "production",
-            domain: process.env.HOST || "localhost", 
+            domain: process.env.HOST || "127.0.0.1", 
             httpOnly: true,
             maxAge: 604800,
-            expires: new Date(Date.now() + 604800000),
-            sameSite: "Lax",
+            //expires: new Date(Date.now() + 604800000),
+            sameSite: process.env.NODE_ENV !== "production"  ? 'lax' : 'none',
           });
 
           return c.json({

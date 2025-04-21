@@ -14,7 +14,7 @@ async function StartServer() {
   app.use(cors({
     origin: 'http://127.0.0.1:3000',
     allowMethods: ['GET', 'OPTIONS', 'POST'], 
-    exposeHeaders: ['Content-Type'],
+    //exposeHeaders: ['Content-Type'],
     credentials: true
   }));
 
