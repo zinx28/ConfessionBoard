@@ -26,8 +26,15 @@ export default function (app: Hono) {
 
       console.log(cookieiei);
 
-      return c.body("d");
+      return c.json({
+        message: "Failed to find user",
+        error: true
+      })
     } catch (err) {}
-    return c.body("s");
+    
+    return c.json({
+      message: "internal error",
+      error: true
+    })
   });
 }
