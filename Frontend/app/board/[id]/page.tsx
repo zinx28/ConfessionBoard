@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useUserStore } from "@/hooks/useUserStore";
+import { useRouter } from "next/navigation";
 
 export default function BoardPage({
   params,
@@ -31,6 +32,7 @@ export default function BoardPage({
   params: Promise<{ id: string }>;
 }) {
   const { isAuthenticated, login } = useUserStore();
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(true);
 
   const CheckLogin = async () => {
@@ -50,19 +52,51 @@ export default function BoardPage({
 
       login(responsebc);
       setIsSubmitting(false);
-      //router.push("/dashboard");
-    }else if(responsebc)
-    {
+    } else if (responsebc) {
       setIsSubmitting(false);
+    }
+    console.log(responsebc);
+  };
+  const { id } = use(params);
+  const [Board, setBoard] = useState({
+    id: "",
+    ownerId: "",
+    title: "",
+    description: "",
+    anonymous: true,
+    allowMultiple: false,
+    theme: "dark",
+    background: ""
+  });
+
+  const ViewBoard = async () => {
+    var apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    const response = await fetch(`${apiUrl}/api/v1/board/user/view/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      credentials: "include",
+    });
+    var responsebc = await response.json();
+
+    if (responsebc && responsebc.error) {
+      // this is temp, most likely a message iont he future
+      router.push("/");
+    } else if (responsebc) {
+      setBoard(responsebc.data);
     }
     console.log(responsebc);
   };
 
   useEffect(() => {
-    CheckLogin();
+    ///api/v1/board/user/view/
+    ViewBoard().finally(() => {
+      CheckLogin();
+    });
   }, []);
   const [confession, setConfession] = useState("");
-  const { id } = use(params);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,11 +133,12 @@ export default function BoardPage({
 
         <Card className="mb-8 items-center justify-center  max-w-3xl">
           <CardHeader>
-            <CardTitle>{id}'s Confession Board</CardTitle>
+            <CardTitle>{Board.title}</CardTitle>
             <CardDescription>
               Share your thoughts anonymously with {id}. They won't know who you
               are.
             </CardDescription>
+            <CardDescription>{Board.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
@@ -167,7 +202,16 @@ export default function BoardPage({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button disabled={isSubmitting}>Connect with discord</Button>
+            <Button
+              disabled={isSubmitting}
+              onClick={() =>
+                router.push(
+                  `https://discord.com/oauth2/authorize?client_id=1363320877998932209&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcheck%2Flogin&scope=identify&state=board_id=${id}`
+                )
+              }
+            >
+              Connect with discord
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
