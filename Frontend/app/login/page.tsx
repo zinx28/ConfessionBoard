@@ -32,9 +32,10 @@ export default function LoginPage() {
 
     if (responsebc && !responsebc.error) {
       console.log("yo");
-      
+      if(!responsebc.Temp) {
       login(responsebc);
       router.push("/dashboard");
+      }
     }
     console.log(responsebc);
   };

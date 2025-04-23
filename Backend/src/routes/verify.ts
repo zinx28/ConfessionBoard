@@ -25,6 +25,7 @@ export default function (app: Hono) {
             DiscordID: Account?.discordId,
             Avatar: Account?.avatar,
             UserName: Account?.username,
+            Temp: false
           });
         } else {
           // limited access
@@ -33,11 +34,12 @@ export default function (app: Hono) {
 
           if (ProfileData) {
             var [discordID, UserData] = ProfileData;
-            
+
             return c.json({
               DiscordID: discordID,
               Avatar: "",
               UserName: UserData?.Username,
+              Temp: true
             });
           }
         }
