@@ -39,7 +39,7 @@ export default function LoginPage() {
         },
         body: JSON.stringify({
            code: disccode,
-           needAccount: true
+           needAccount: boardId ? false : true
         }),
         credentials: 'include'
       });
