@@ -125,7 +125,7 @@ export default function DashboardPage({
           {Board.messages?.map((e) => (
             <div className="p-4 border rounded-lg">
               <p className="text-sm text-gray-500 mb-1">
-                April 20, 2025 • 1:30 PM
+                {e.timestamp}
               </p>
               <p>{e.message}</p>
             </div>
