@@ -1,6 +1,7 @@
 import type { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { prisma } from "../database/client";
+import { getProfileData } from "../utils/tempLogin";
 
 export default function (app: Hono) {
   /*
@@ -25,6 +26,20 @@ export default function (app: Hono) {
             Avatar: Account?.avatar,
             UserName: Account?.username,
           });
+        } else {
+          // limited access
+
+          var ProfileData = await getProfileData(cookieiei, true);
+
+          if (ProfileData) {
+            var [discordID, UserData] = ProfileData;
+            
+            return c.json({
+              DiscordID: discordID,
+              Avatar: "",
+              UserName: UserData?.Username,
+            });
+          }
         }
       }
 

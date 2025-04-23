@@ -20,16 +20,18 @@ export default function LoginPage() {
   const { login } = useUserStore();
 
   useEffect(() => {
-    const boardId = searchParams.get("board_id");
+    var boardId = searchParams.get("state");
     const disccode = searchParams.get("code");
 
-    if(!boardId)
-      console.log("isnt a board")
+    if (!boardId) console.log("isnt a board or no state idk");
+    else {
+      const decoded = decodeURIComponent(boardId);
+      boardId = decoded.split("=")[1];
+    }
 
     console.log(boardId);
     console.log(disccode);
-    async function Login(){
-
+    async function Login() {
       var apiUrl = process.env.NEXT_PUBLIC_API_URL;
       console.log(apiUrl);
       const response = await fetch(`${apiUrl}/api/v1/discord`, {
@@ -38,17 +40,19 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-           code: disccode,
-           needAccount: boardId ? false : true
+          code: disccode,
+          needAccount: boardId ? false : true,
         }),
-        credentials: 'include'
+        credentials: "include",
       });
 
+      //http://127.0.0.1:3000/check/login?code=LPyTdEGiJ8J33m6OJw2HRsAduxfs6u&state=board_id%3D6808f76b3a2a97e3c94ca2f1
       const apiresponse = await response.json();
 
-      if(apiresponse)
-      {
-        router.push("/dashboard")
+      if (apiresponse) {
+        if (boardId) {
+          router.push(`/board/${boardId}`);
+        } else router.push("/dashboard");
 
         login(apiresponse);
       }

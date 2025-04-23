@@ -206,7 +206,7 @@ export default function BoardPage({
               disabled={isSubmitting}
               onClick={() =>
                 router.push(
-                  `https://discord.com/oauth2/authorize?client_id=1363320877998932209&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcheck%2Flogin&scope=identify&state=board_id=${id}`
+                  `https://discord.com/oauth2/authorize?client_id=1363320877998932209&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcheck%2Flogin&scope=identify&state=board_id=${id}`
                 )
               }
             >

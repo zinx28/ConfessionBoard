@@ -2,12 +2,17 @@ import axios from "axios";
 import type { Hono } from "hono";
 import { prisma } from "../database/client";
 import { setCookie } from "hono/cookie";
+import {
+  getProfileData,
+  getProfileDataByDscID,
+  GlobalCacheProfiles,
+} from "../utils/tempLogin";
 
 export default function (app: Hono) {
   app.post("/api/v1/discord", async (c) => {
     try {
       const { code, needAccount } = await c.req.json();
- 
+
       console.log(code);
       const params = new URLSearchParams();
       params.append("client_id", process.env.CLIENT_ID!);
@@ -75,8 +80,8 @@ export default function (app: Hono) {
               },
               data: {
                 token: token,
-              }
-            })
+              },
+            });
             console.log("FOUND A ACCOUNTHAHAHAH!!");
           }
 
@@ -84,21 +89,65 @@ export default function (app: Hono) {
           setCookie(c, "auth_token", token, {
             path: "/",
             secure: process.env.NODE_ENV === "production",
-            domain: process.env.HOST || "127.0.0.1", 
+            domain: process.env.HOST || "127.0.0.1",
             httpOnly: true,
             maxAge: 604800,
             //expires: new Date(Date.now() + 604800000),
-            sameSite: process.env.NODE_ENV !== "production"  ? 'lax' : 'none',
+            sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
           });
 
           return c.json({
             DiscordID: Account?.discordId,
             Avatar: Account?.avatar,
-            UserName: Account?.username
-          })
-        }
+            UserName: Account?.username,
+          });
+        } else {
+          var ProfileData = await getProfileDataByDscID(userData.id);
 
-       
+          if (ProfileData) {
+            var UserData = GlobalCacheProfiles[userData.id];
+            UserData.Token = token;
+            UserData.updatedSince = new Date(Date.now() + 15 * 60 * 1000);
+
+            setCookie(c, "auth_token", token, {
+              path: "/",
+              secure: process.env.NODE_ENV === "production",
+              domain: process.env.HOST || "127.0.0.1",
+              httpOnly: true,
+              maxAge: 604800,
+              //expires: new Date(Date.now() + 604800000),
+              sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
+            });
+
+            return c.json({
+              DiscordID: Account?.discordId,
+              Avatar: Account?.avatar,
+              UserName: Account?.username,
+            });
+          } else {
+            GlobalCacheProfiles[userData.id] = {
+              Token: token,
+              Username: userData.username,
+              updatedSince: new Date(Date.now() + 15 * 60 * 1000),
+            };
+
+            setCookie(c, "auth_token", token, {
+              path: "/",
+              secure: process.env.NODE_ENV === "production",
+              domain: process.env.HOST || "127.0.0.1",
+              httpOnly: true,
+              maxAge: 604800,
+              //expires: new Date(Date.now() + 604800000),
+              sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
+            });
+
+            return c.json({
+              DiscordID: Account?.discordId,
+              Avatar: Account?.avatar,
+              UserName: Account?.username,
+            });
+          }
+        }
       }
     } catch (err) {
       console.error(err);
