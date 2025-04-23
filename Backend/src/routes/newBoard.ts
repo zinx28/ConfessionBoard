@@ -78,10 +78,7 @@ export default function (app: Hono) {
       }
     } catch (err) {}
 
-    return c.json({
-      message: "internal error",
-      error: true,
-    });
+    return c.json([]);
   });
 
     // View all boards from the user
