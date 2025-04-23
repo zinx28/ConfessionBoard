@@ -81,7 +81,7 @@ export default function (app: Hono) {
     return c.json([]);
   });
 
-    // View all boards from the user
+    // View a certain board from the user
     app.post("/api/v1/board/view/:id", async (c) => {
       try {
         const cookieiei = getCookie(c, "auth_token");
