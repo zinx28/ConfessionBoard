@@ -27,9 +27,13 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function DashboardPage({ params }: { params: Promise<{ id: string }>}) {
+export default function DashboardPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { isAuthenticated, user } = useUserStore();
-  const { id } = use(params); 
+  const { id } = use(params);
   const router = useRouter();
 
   useEffect(() => {
@@ -39,9 +43,18 @@ export default function DashboardPage({ params }: { params: Promise<{ id: string
   if (!isAuthenticated) return <div>Redirecting</div>;
 
   // this should be removed on view api called
+  type MessageType = {
+    boardId: "";
+    id: "";
+    image: null;
+    message: "";
+    timestamp: "";
+    userId: "";
+    username: "";
+  };
   const [Board, setBoard] = useState({
     title: "test",
-    messages: []
+    messages: [] as MessageType[],
   });
 
   useEffect(() => {
@@ -67,7 +80,6 @@ export default function DashboardPage({ params }: { params: Promise<{ id: string
 
     GetBoards();
   }, []);
-
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -107,11 +119,17 @@ export default function DashboardPage({ params }: { params: Promise<{ id: string
             <p className="text-gray-500">
               Viewing a confession | {Board.title}
             </p>
-            <p className="text-gray-500">
-              Messages | {Board.messages.length}
-            </p>
+            <p className="text-gray-500">Messages | {Board.messages.length}</p>
           </div>
 
+          {Board.messages?.map((e) => (
+            <div className="p-4 border rounded-lg">
+              <p className="text-sm text-gray-500 mb-1">
+                April 20, 2025 • 1:30 PM
+              </p>
+              <p>{e.message}</p>
+            </div>
+          ))}
         </div>
       </main>
 
