@@ -130,20 +130,7 @@ export default function BoardPage({
           <MessageSquare className="h-6 w-6" />
           <span>ConfessBoard</span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link
-            href="/login"
-            className="text-sm font-medium hover:underline underline-offset-4"
-          >
-            Login
-          </Link>
-          <Link
-            href="/about"
-            className="text-sm font-medium hover:underline underline-offset-4"
-          >
-            About
-          </Link>
-        </nav>
+
       </header>
       <main className="flex-1  mx-auto py-8 px-4">
         <Link href="/" className="flex items-center gap-1 text-sm mb-6">

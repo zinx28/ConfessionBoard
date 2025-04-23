@@ -107,6 +107,9 @@ export default function DashboardPage({ params }: { params: Promise<{ id: string
             <p className="text-gray-500">
               Viewing a confession | {Board.title}
             </p>
+            <p className="text-gray-500">
+              Messages | {Board.messages.length}
+            </p>
           </div>
 
         </div>
