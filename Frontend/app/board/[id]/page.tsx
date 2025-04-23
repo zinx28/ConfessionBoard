@@ -98,9 +98,29 @@ export default function BoardPage({
   }, []);
   const [confession, setConfession] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    var apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const response = await fetch(`${apiUrl}/api/v1/board/user/message/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: JSON.stringify({
+        message: confession,
+      }),
+      credentials: "include",
+    });
+    var responsebc = await response.json();
+
+    if (responsebc) {
+      console.log(responsebc);
+      
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
