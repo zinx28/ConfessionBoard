@@ -10,31 +10,33 @@ export default function (app: Hono) {
     try {
       const cookieiei = getCookie(c, "auth_token");
 
-      const Account = await prisma.user.findFirst({
-        where: {
-          token: cookieiei,
-        },
-      });
-
-      if (Account) {
-        return c.json({
-          DiscordID: Account?.discordId,
-          Avatar: Account?.avatar,
-          UserName: Account?.username,
+      if (cookieiei) {
+        const Account = await prisma.user.findFirst({
+          where: {
+            token: cookieiei,
+          },
         });
-      }
 
-      console.log(cookieiei);
+        console.log(cookieiei);
+
+        if (Account) {
+          return c.json({
+            DiscordID: Account?.discordId,
+            Avatar: Account?.avatar,
+            UserName: Account?.username,
+          });
+        }
+      }
 
       return c.json({
         message: "Failed to find user",
-        error: true
-      })
+        error: true,
+      });
     } catch (err) {}
-    
+
     return c.json({
       message: "internal error",
-      error: true
-    })
+      error: true,
+    });
   });
 }
