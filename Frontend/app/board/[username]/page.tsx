@@ -16,13 +16,6 @@ export default function BoardPage({ params }: { params: { username: string } }) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-
-    // Here you would handle the submission to your backend
-    setTimeout(() => {
-      setConfession("")
-      setIsSubmitting(false)
-      // Show success message
-    }, 1000)
   }
 
   return (
