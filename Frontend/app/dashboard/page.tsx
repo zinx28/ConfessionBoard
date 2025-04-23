@@ -170,7 +170,7 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
             {boards.map((board) => (
-              <Link href={``} key={board.id}>
+              <Link href={`/dashboard/${board.id}`} key={board.id}>
                 <Card className="cursor-pointer hover:shadow-lg transition">
                   <CardHeader>
                     <CardTitle>{board.title}</CardTitle>
