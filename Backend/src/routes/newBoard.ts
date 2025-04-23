@@ -32,7 +32,7 @@ export default function (app: Hono) {
         });
 
         if (newBoard) {
-          c.json({
+          return c.json({
             message: "created board!",
             error: false,
           });
@@ -81,40 +81,39 @@ export default function (app: Hono) {
     return c.json([]);
   });
 
-    // View a certain board from the user
-    app.post("/api/v1/board/view/:id", async (c) => {
-      try {
-        const cookieiei = getCookie(c, "auth_token");
-        const IdValue = c.req.param("id")
-  
-        const Account = await prisma.user.findFirst({
-          where: {
-            token: cookieiei,
+  // View a certain board from the user
+  app.post("/api/v1/board/view/:id", async (c) => {
+    try {
+      const cookieiei = getCookie(c, "auth_token");
+      const IdValue = c.req.param("id");
+
+      const Account = await prisma.user.findFirst({
+        where: {
+          token: cookieiei,
+        },
+        include: {
+          boards: {
+            include: {
+              messages: true,
+            },
           },
-          include: {
-            boards: {
-              include: {
-                messages: true
-              }
-            }
-          },
-        });
-  
-        if (Account) {
-          const FindCertainID = Account.boards.find((e) => e.id == IdValue);
-          if(FindCertainID)
-          {
-            return c.json({
-              title: FindCertainID.title,
-              messages: FindCertainID.messages
-            });
-          }
-        }
-      } catch (err) {}
-  
-      return c.json({
-        message: "internal error",
-        error: true,
+        },
       });
+
+      if (Account) {
+        const FindCertainID = Account.boards.find((e) => e.id == IdValue);
+        if (FindCertainID) {
+          return c.json({
+            title: FindCertainID.title,
+            messages: FindCertainID.messages,
+          });
+        }
+      }
+    } catch (err) {}
+
+    return c.json({
+      message: "internal error",
+      error: true,
     });
+  });
 }
