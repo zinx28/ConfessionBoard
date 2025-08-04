@@ -31,7 +31,7 @@ export default function (app: Hono) {
         message: "Failed to find board",
         error: true,
       });
-    } catch (err) {}
+    } catch (err) { }
 
     return c.json({
       message: "internal error",
@@ -43,74 +43,82 @@ export default function (app: Hono) {
   app.post("/api/v1/board/user/message/:id", async (c) => {
     try {
       const ID = c.req.param("id");
+      var CanSendMessage = false;
+      var AccountData: {
+        DiscordID: string;
+      } | null = null;
 
-      if (ID) {
-        const cookieiei = getCookie(c, "auth_token");
+      if (!ID) return c.json({ error: "Board ID missing" }, 400);
 
-        if (cookieiei) {
-          const Account = await prisma.user.findFirst({
-            where: {
-              token: cookieiei,
-            },
-          });
+      const cookieiei = getCookie(c, "auth_token");
 
-          console.log(cookieiei);
+      if (!cookieiei) return c.json({ error: "Missing auth token" }, 401);
 
-          var CanSendMessage = false;
-          type TempuserData = {
-            DiscordID: string;
+      const Account = await prisma.user.findFirst({
+        where: {
+          token: cookieiei,
+        },
+      });
+
+      if (Account) {
+        CanSendMessage = true;
+        AccountData = {
+          DiscordID: Account.discordId,
+        };
+      } else {
+        var ProfileData = await getProfileData(cookieiei, true);
+
+        if (ProfileData) {
+          var [discordID] = ProfileData;
+
+          AccountData = {
+            DiscordID: discordID,
           };
-          var AccountData: TempuserData | null = null;
-
-          if (Account) {
-            CanSendMessage = true;
-            AccountData = {
-              DiscordID: Account.discordId,
-            };
-          } else {
-            var ProfileData = await getProfileData(cookieiei, true);
-
-            if (ProfileData) {
-              var [discordID, UserData] = ProfileData;
-
-              AccountData = {
-                DiscordID: discordID,
-              };
-            }
-          }
-
-          if (AccountData) {
-            const { message } = await c.req.json();
-
-            if (message) {
-              const newMessage = await prisma.message.create({
-                data: {
-                  userId: AccountData.DiscordID,
-                  username: "",
-                  message: message,
-                  board: {
-                    connect: { id: ID },
-                  },
-                },
-              });
-              if (newMessage) {
-                
-
-                return c.json({
-                  message: "Sent message!",
-                  error: false,
-                });
-              }
-            }
-          }
         }
       }
 
-      return c.json({
-        message: "Failed to find board",
-        error: true,
+      if (!AccountData) return c.json({ error: "User not authenticated" }, 401);
+
+      const board = await prisma.board.findUnique({
+        where: { id: ID },
+        select: { allowMultiple: true },
       });
-    } catch (err) {}
+
+      if (!board) return c.json({ error: "Board not found" }, 404);
+
+      if (!board.allowMultiple) {
+        const existingMessage = await prisma.message.findFirst({
+          where: {
+            userId: AccountData.DiscordID,
+            boardId: ID,
+          },
+        });
+
+        if (existingMessage) {
+          return c.json(
+            { error: "You’ve already sent a message to this board." },
+            403
+          );
+        }
+      }
+
+      const { message } = await c.req.json();
+
+      if (!message || message.trim() === "") {
+        return c.json({ error: "Message is empty" }, 400);
+      }
+
+      const newMessage = await prisma.message.create({
+        data: {
+          userId: AccountData.DiscordID,
+          username: "",
+          message,
+          board: { connect: { id: ID } },
+        },
+      });
+
+      return c.json({ success: true, message: newMessage });
+    } catch (err) { }
 
     return c.json({
       message: "internal error",

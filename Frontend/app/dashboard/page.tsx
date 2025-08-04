@@ -92,6 +92,17 @@ export default function DashboardPage() {
     const JsonParsed = await apiResponse.json();
     console.log(JsonParsed);
     if (JsonParsed) {
+      if (!JsonParsed.error) {
+        setShowCreateBoard(false);
+        setBoards(prevBoards => [
+          ...prevBoards,
+          {
+            id: JsonParsed.id,
+            title: BoardTitleBox,
+            description: BoardDescriptionBox
+          }
+        ]);
+      }
     }
   };
 

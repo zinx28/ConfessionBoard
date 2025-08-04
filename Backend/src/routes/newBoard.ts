@@ -35,6 +35,7 @@ export default function (app: Hono) {
           if (newBoard) {
             return c.json({
               message: "created board!",
+              id: newBoard.id,
               error: false,
             });
           }
