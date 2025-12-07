@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Copy, MessageSquare } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Copy, MessageSquare, Shield, Users } from "lucide-react";
 import { useUserStore } from "@/hooks/useUserStore";
 import { useRouter } from "next/navigation";
 import {
@@ -26,6 +26,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+interface BoardSettings {
+  title: string
+  description: string
+  allowMultiple: boolean
+  requireModeration: boolean
+  allowAnonymous: boolean
+  maxLength: string
+  cooldownPeriod: string
+  isPublic: boolean
+  customSlug: string
+}
 
 export default function DashboardPage() {
   const { isAuthenticated, user } = useUserStore();
@@ -35,6 +50,22 @@ export default function DashboardPage() {
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [BoardTitleBox, setBoardTitleBox] = useState("");
   const [BoardDescriptionBox, setBoardDescriptionBox] = useState("");
+  const [boardSettings, setBoardSettings] = useState<BoardSettings>({
+    title: "",
+    description: "",
+    allowMultiple: false,
+    requireModeration: false,
+    allowAnonymous: true,
+    maxLength: "500",
+    cooldownPeriod: "none",
+    isPublic: true,
+    customSlug: "",
+  })
+
+
+  const [currentStep, setCurrentStep] = useState(1)
+  const totalSteps = 3
+  const progress = ((currentStep - 1) / (totalSteps - 1)) * 100
 
   useEffect(() => {
     if (!isAuthenticated) router.push("/login");
@@ -50,6 +81,147 @@ export default function DashboardPage() {
       description: "This is a public board!",
     }
   ]);
+
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const canProceed = () => {
+    if (currentStep === 1) {
+      return boardSettings.title.trim().length > 0
+    }
+    return true
+  }
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const handleDialogClose = () => {
+    setShowCreateBoard(false)
+    setCurrentStep(1)
+  }
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-4">
+                <MessageSquare className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Basic Information</h3>
+              <p className="text-gray-500">Let's start with the basics for your confession board</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Board Title *</Label>
+                <Input
+                  id="title"
+                  placeholder="My Confession Board"
+                  value={boardSettings.title}
+                  onChange={(e) => setBoardSettings((prev) => ({ ...prev, title: e.target.value }))}
+                />
+                <p className="text-xs text-gray-500">This will be displayed at the top of your board</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Share your thoughts with me anonymously..."
+                  value={boardSettings.description}
+                  onChange={(e) => setBoardSettings((prev) => ({ ...prev, description: e.target.value }))}
+                  className="min-h-[100px]"
+                />
+                <p className="text-xs text-gray-500">
+                  Help people understand what kind of confessions you're looking for
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-4">
+                <Shield className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Privacy & Security</h3>
+              <p className="text-gray-500">Configure who can access your board and how</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Public Board</Label>
+                  <p className="text-sm text-gray-500">Allow anyone to find your board through search</p>
+                </div>
+                <input
+                  type="checkbox"
+                  disabled
+                  checked={boardSettings.isPublic}
+                  onChange={(e) => setBoardSettings((prev) => ({ ...prev, isPublic: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Allow Anonymous Confessions</Label>
+                  <p className="text-sm text-gray-500">Let people submit without creating an account</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={boardSettings.allowAnonymous}
+                  onChange={(e) => setBoardSettings((prev) => ({ ...prev, allowAnonymous: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+              </div>
+            </div>
+          </div>
+        )
+
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-4">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Submission Settings</h3>
+              <p className="text-gray-500">Control how people can submit confessions</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Allow Multiple Confessions</Label>
+                  <p className="text-sm text-gray-500">Let users submit more than one confession</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={boardSettings.allowMultiple}
+                  onChange={(e) => setBoardSettings((prev) => ({ ...prev, allowMultiple: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+              </div>
+            </div>
+          </div>
+        )
+
+      default:
+        return null
+    }
+  };
 
   useEffect(() => {
     async function GetBoards() {
@@ -170,7 +342,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Confessions</h1>
+            <h1 className="text-2xl font-bold">Your Boards</h1>
             <Button
               className="px-4 py-2 "
               onClick={() => setShowCreateBoard(true)}
@@ -184,12 +356,18 @@ export default function DashboardPage() {
               <Link href={`/dashboard/${board.id}`} key={board.id}>
                 <Card className="cursor-pointer hover:shadow-lg transition">
                   <CardHeader>
-                    <CardTitle>{board.title}</CardTitle>
+                    <CardTitle className="flex items-center gap-2">  <MessageSquare className="h-5 w-5 text-primary" /> {board.title}</CardTitle>
                     <CardDescription>{board.description}</CardDescription>
                   </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>test</span>
+                      <span>Active</span>
+                    </div>
+                  </CardContent>
                   <CardFooter>
                     <Button variant="outline" className="w-full">
-                      View Confessions
+                      View Confessions  <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </CardFooter>
                 </Card>
@@ -205,50 +383,51 @@ export default function DashboardPage() {
         </p>
       </footer>
 
+
+
       <Dialog open={showCreateBoard} onOpenChange={setShowCreateBoard}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Create New Board</DialogTitle>
+            <DialogDescription>
+              Step {currentStep} of {totalSteps} - Set up your confession board
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="relative">
-              <div className="space-y-2">
-                <Label>Board Name</Label>
-                <Input
-                  placeholder="Board Name"
-                  value={BoardTitleBox}
-                  onChange={(e) => setBoardTitleBox(e.target.value)}
-                ></Input>
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  placeholder="Board Name"
-                  value={BoardDescriptionBox}
-                  onChange={(e) => setBoardDescriptionBox(e.target.value)}
-                ></Textarea>
-              </div>
+          <div className="space-y-2">
+            <Progress value={progress} className="w-full" />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Basic Info</span>
+              <span>Privacy</span>
+              <span>Settings</span>
             </div>
           </div>
 
-          <DialogFooter>
-            {" "}
-            <div className="flex justify-end gap-3 pt-4">
-              <button
-                type="button"
-                className="px-4 py-2 text-gray-300 hover:text-white transition"
-                onClick={() => setShowCreateBoard(false)}
-              >
+          <div className="min-h-[400px]">{renderStepContent()}</div>
+
+          <DialogFooter className="flex justify-between">
+            <div className="flex gap-2">
+              {currentStep > 1 && (
+                <Button variant="outline" onClick={prevStep}>
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  Previous
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleDialogClose}>
                 Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white transition"
-                onClick={() => CreateBoard()}
-              >
-                Create Board
-              </button>
+              </Button>
+              {currentStep < totalSteps ? (
+                <Button onClick={nextStep} disabled={!canProceed()}>
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button onClick={CreateBoard} disabled={!canProceed()}>
+                  Create Board
+                </Button>
+              )}
             </div>
           </DialogFooter>
         </DialogContent>

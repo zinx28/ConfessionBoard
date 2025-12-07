@@ -87,7 +87,7 @@ export default function BoardPage({
     } else if (responsebc) {
       setBoard(responsebc.data);
     }
-    console.log(responsebc.data);
+    console.log(responsebc);
   };
 
   useEffect(() => {
