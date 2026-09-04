@@ -48,8 +48,6 @@ export default function DashboardPage() {
   // these stuff are temp, these are only added to get the base feature working, then the
   // improvements and the actual stuff will be implemented
   const [showCreateBoard, setShowCreateBoard] = useState(false);
-  const [BoardTitleBox, setBoardTitleBox] = useState("");
-  const [BoardDescriptionBox, setBoardDescriptionBox] = useState("");
   const [boardSettings, setBoardSettings] = useState<BoardSettings>({
     title: "",
     description: "",
@@ -255,8 +253,8 @@ export default function DashboardPage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        title: BoardTitleBox,
-        description: BoardDescriptionBox,
+        title: boardSettings.title,
+        description: boardSettings.description,
       }),
       credentials: "include",
     });
@@ -270,8 +268,8 @@ export default function DashboardPage() {
           ...prevBoards,
           {
             id: JsonParsed.id,
-            title: BoardTitleBox,
-            description: BoardDescriptionBox
+            title: boardSettings.title,
+            description: boardSettings.description
           }
         ]);
       }

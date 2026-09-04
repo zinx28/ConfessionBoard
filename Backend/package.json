@@ -3,23 +3,19 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "generate-mongodb": "bunx prisma generate --schema=src/database/prisma/schema.mongodb.prisma",
-    "generate-postgres": "bunx prisma generate --schema=src/database/prisma/schema.postgresql.prisma",
-    "createDB-postgres": "bunx prisma db push --schema=src/database/prisma/schema.postgresql.prisma",
-    "createDB-mongodb": "bunx prisma db push --schema=src/database/prisma/schema.mongodb.prisma",
     "dev": "bun --port 6920 --hot src/index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.4.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@prisma/client": "^6.13.0",
+    "@types/pg": "^8.23.1",
     "axios": "^1.8.4",
     "dotenv": "^16.5.0",
     "hono": "^4.7.7",
-    "prisma": "^6.13.0"
+    "pg": "^8.23.0"
   }
 }

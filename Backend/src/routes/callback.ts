@@ -1,12 +1,13 @@
 import axios from "axios";
 import type { Hono } from "hono";
-import { prisma } from "../database/client";
+import { db } from "../database/client.ts";
 import { setCookie } from "hono/cookie";
 import {
   getProfileData,
   getProfileDataByDscID,
   GlobalCacheProfiles,
 } from "../utils/tempLogin";
+import { createUser, getUserByDiscordID, updateUserToken } from "../database/users.ts";
 
 export default function (app: Hono) {
   app.post("/api/v1/discord", async (c) => {
@@ -50,12 +51,7 @@ export default function (app: Hono) {
         //needAccount ~ this can be true or false, if they created a account,
         // then needacc is false, it will use the created account already
 
-        const Account = await prisma.user.findFirst({
-          where: {
-            discordId: userData.id,
-          },
-        });
-
+        const Account = await getUserByDiscordID(userData.id);
         // todo
         var token = Bun.password.hashSync(userData.id, {
           algorithm: "bcrypt",
@@ -64,24 +60,16 @@ export default function (app: Hono) {
 
         if (needAccount) {
           if (!Account) {
-            await prisma.user.create({
-              data: {
-                discordId: userData.id,
-                username: userData.username,
-                token: token,
-                avatar: userData.avatar,
-              },
-            });
+            await createUser(
+              userData.id,
+              userData.username,
+              token,
+              userData.avatar
+            )
+              
             console.log("CREATED A ACCOUNT");
           } else {
-            await prisma.user.update({
-              where: {
-                discordId: userData.id,
-              },
-              data: {
-                token: token,
-              },
-            });
+            await updateUserToken(userData.id, token);
             console.log("FOUND A ACCOUNTHAHAHAH!!");
           }
 

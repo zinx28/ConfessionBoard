@@ -1,16 +1,16 @@
-import { PrismaClient } from "../generated/client";
+import { Pool } from "pg";
 
-export const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-  log: ["query", "info", "warn", "error"],
+export const db = new Pool({
+  connectionString: process.env.DATABASE_URL,
 });
 
-export const connectPrisma = async () => {
+export const connectDatabase = async () => {
   try {
-    await prisma.$connect();
-    console.log("Prisma connected!");
-  } catch (err) {
-    console.error("Prisma connection failed:", err);
-    process.exit(1);
+    await db.query("SELECT 1");
+    console.log("Connected to the database");
+  }
+  catch (error) {
+    console.error("Error connecting to the database:", error);
+    throw error;
   }
 };

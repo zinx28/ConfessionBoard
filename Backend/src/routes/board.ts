@@ -1,7 +1,9 @@
 import type { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
-import { prisma } from "../database/client";
+import { db } from "../database/client.ts";
 import { getProfileData } from "../utils/tempLogin";
+import { getUserByTokenD } from "../database/users.ts";
+import { getBoardAllowMultiple, getBoardById, getBoardMessagesByUser } from "../database/boards.ts";
 
 export default function (app: Hono) {
   /*
@@ -12,11 +14,7 @@ export default function (app: Hono) {
       const ID = c.req.param("id");
 
       if (ID) {
-        const Board = await prisma.board.findFirst({
-          where: {
-            id: ID,
-          },
-        });
+        const Board = await getBoardById(ID);
 
         if (Board) {
           return c.json({
@@ -54,11 +52,7 @@ export default function (app: Hono) {
 
       if (!cookieiei) return c.json({ error: "Missing auth token" }, 401);
 
-      const Account = await prisma.user.findFirst({
-        where: {
-          token: cookieiei,
-        },
-      });
+      const Account = await await getUserByTokenD(cookieiei);
 
       if (Account) {
         CanSendMessage = true;
@@ -79,20 +73,12 @@ export default function (app: Hono) {
 
       if (!AccountData) return c.json({ error: "User not authenticated" }, 401);
 
-      const board = await prisma.board.findUnique({
-        where: { id: ID },
-        select: { allowMultiple: true },
-      });
+      const board = await getBoardAllowMultiple(ID);
 
       if (!board) return c.json({ error: "Board not found" }, 404);
 
       if (!board.allowMultiple) {
-        const existingMessage = await prisma.message.findFirst({
-          where: {
-            userId: AccountData.DiscordID,
-            boardId: ID,
-          },
-        });
+        const existingMessage = await getBoardMessagesByUser(ID, AccountData.DiscordID);
 
         if (existingMessage) {
           return c.json(
@@ -108,17 +94,27 @@ export default function (app: Hono) {
         return c.json({ error: "Message is empty" }, 400);
       }
 
-      const newMessage = await prisma.message.create({
-        data: {
-          userId: AccountData.DiscordID,
-          username: "",
+      const result = await db.query(
+        `INSERT INTO messages (
+        user_id,
+        username,
+        message,
+        board_id
+    )
+    VALUES ($1, $2, $3, $4)
+    RETURNING *`,
+        [
+          AccountData.DiscordID,
+          "",
           message,
-          board: { connect: { id: ID } },
-        },
-      });
+          ID
+        ]
+      );
+
+      const newMessage = result.rows[0];
 
       return c.json({ success: true, message: newMessage });
-    } catch (err) { }
+    } catch (err) { console.log(err) }
 
     return c.json({
       message: "internal error",

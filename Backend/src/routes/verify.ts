@@ -1,6 +1,6 @@
 import type { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
-import { prisma } from "../database/client";
+import { db } from "../database/client.ts";
 import { getProfileData } from "../utils/tempLogin";
 
 export default function (app: Hono) {
@@ -12,11 +12,7 @@ export default function (app: Hono) {
       const cookieiei = getCookie(c, "auth_token");
 
       if (cookieiei) {
-        const Account = await prisma.user.findFirst({
-          where: {
-            token: cookieiei,
-          },
-        });
+        const Account = await db.query("SELECT * FROM users WHERE token = $1", [cookieiei]).then((res) => res.rows[0]);
 
         console.log(cookieiei);
 
@@ -49,7 +45,7 @@ export default function (app: Hono) {
         message: "Failed to find user",
         error: true,
       });
-    } catch (err) {}
+    } catch (err) { }
 
     return c.json({
       message: "internal error",

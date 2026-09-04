@@ -1,6 +1,7 @@
 import type { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
-import { prisma } from "../database/client";
+import { db } from "../database/client.ts";
+import { getBoardByUserToken, getBoardMessages, getBoardsByUserToken } from "../database/boards.ts";
 
 export default function (app: Hono) {
   /*
@@ -11,26 +12,40 @@ export default function (app: Hono) {
       const cookieiei = getCookie(c, "auth_token");
 
       if (cookieiei) {
-        const Account = await prisma.user.findFirst({
-          where: {
-            token: cookieiei,
-          },
-        });
+        const Account = await db.query("SELECT * FROM users WHERE token = $1", [cookieiei]).then((res) => res.rows[0]);
 
         if (Account) {
           const { title, description } = await c.req.json();
 
-          const newBoard = await prisma.board.create({
-            data: {
-              title: title,
-              description: description,
-              ownerId: Account.id,
-              anonymous: true,
-              theme: "dark",
-              allowMultiple: false,
-              background: "",
-            },
-          });
+          const result = await db.query(
+            `INSERT INTO boards (
+              title,
+              description,
+              owner_id,
+              anonymous,
+              theme,
+              allow_multiple,
+              background
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
+             RETURNING
+              id,
+              title,
+              description,
+              owner_id AS "ownerId",
+              anonymous,
+              theme,
+              allow_multiple AS "allowMultiple",
+              background`, [
+            title,
+            description,
+            Account.discord_id,
+            true,
+            "dark",
+            false,
+            "",
+          ])
+
+          const newBoard = result.rows[0];
 
           if (newBoard) {
             return c.json({
@@ -48,7 +63,7 @@ export default function (app: Hono) {
         message: "Failed to find user",
         error: true,
       });
-    } catch (err) {}
+    } catch (err) { console.log(err) }
 
     return c.json({
       message: "internal error",
@@ -62,26 +77,13 @@ export default function (app: Hono) {
       const cookieiei = getCookie(c, "auth_token");
 
       if (cookieiei) {
-        const Account = await prisma.user.findFirst({
-          where: {
-            token: cookieiei,
-          },
-          include: {
-            boards: {
-              select: {
-                id: true,
-                title: true,
-                description: true,
-              },
-            },
-          },
-        });
+        const boards = await getBoardsByUserToken(cookieiei);
 
-        if (Account) {
-          return c.json(Account.boards);
+        if (boards) {
+          return c.json(boards);
         }
       }
-    } catch (err) {}
+    } catch (err) { }
 
     return c.json([]);
   });
@@ -93,30 +95,19 @@ export default function (app: Hono) {
       const IdValue = c.req.param("id");
 
       if (cookieiei) {
-        const Account = await prisma.user.findFirst({
-          where: {
-            token: cookieiei,
-          },
-          include: {
-            boards: {
-              include: {
-                messages: true,
-              },
-            },
-          },
-        });
+        const board = await getBoardByUserToken(cookieiei, IdValue);
 
-        if (Account) {
-          const FindCertainID = Account.boards.find((e) => e.id == IdValue);
-          if (FindCertainID) {
-            return c.json({
-              title: FindCertainID.title,
-              messages: FindCertainID.messages,
-            });
-          }
+        if(board)
+        {
+          const messages = await getBoardMessages(board.id);
+
+          return c.json({
+            title: board.title,
+            messages: messages,
+          });
         }
       }
-    } catch (err) {}
+    } catch (err) { }
 
     return c.json({
       message: "internal error",

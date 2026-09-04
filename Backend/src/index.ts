@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
-import { connectPrisma, prisma } from "./database/client";
+import { connectDatabase } from "./database/client.ts";
 import dotenv from 'dotenv';
 import path from "path";
 import { loadRoutes } from "./utils/routing";
@@ -18,7 +18,7 @@ async function StartServer() {
     credentials: true
   }));
 
-  connectPrisma();
+  await connectDatabase();
   await loadRoutes(path.join(__dirname, "./routes"), app)
   
   app.all("*", (c) => {
