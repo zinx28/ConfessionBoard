@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Copy, MessageSquare } from "lucide-react";
+import { ArrowLeft, Copy, MessageSquare } from "lucide-react";
 import { useUserStore } from "@/hooks/useUserStore";
 import { useRouter } from "next/navigation";
 import {
@@ -115,9 +115,10 @@ export default function DashboardPage({
       <main className="flex-1 py-8 px-4">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-gray-500">
-              Viewing a confession | {Board.title}
+            <h1 className="text-3xl font-bold">{Board.title}</h1>
+            <p className="inline-flex items-center text-gray-500 gap-1">
+             <Link href="/dashboard" className="inline-flex items-center gap-1"><ArrowLeft className="size-4" /> Go back</Link>
+             <span> | Viewing a confession</span>
             </p>
             <p className="text-gray-500">Messages | {Board.messages.length}</p>
           </div>
@@ -135,7 +136,7 @@ export default function DashboardPage({
 
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full border-t px-4 md:px-6">
         <p className="text-xs text-gray-500">
-          © 2025 ConfessBoard. All rights reserved.
+          © 2026 ConfessBoard. All rights reserved.
         </p>
       </footer>
     </div>

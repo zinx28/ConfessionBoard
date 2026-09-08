@@ -18,7 +18,7 @@ export default function (app: Hono) {
 
         if (Account) {
           return c.json({
-            DiscordID: Account?.discordId,
+            DiscordID: Account?.discord_id,
             Avatar: Account?.avatar,
             UserName: Account?.username,
             Temp: false

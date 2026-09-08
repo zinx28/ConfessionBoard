@@ -77,6 +77,7 @@ export default function DashboardPage() {
       id: "board1",
       title: "ThisIsAExample",
       description: "This is a public board!",
+      message_count: 0,
     }
   ]);
 
@@ -111,11 +112,10 @@ export default function DashboardPage() {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-4">
-                <MessageSquare className="h-6 w-6 text-primary" />
+              <div className="rounded-xl bg-primary/5 p-4">
+                <p className="font-medium">Start with the feeling!!</p>
+                <p className="mt-1 text-sm text-muted-foreground">Make the confession interesting! <i>shhh</i></p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Basic Information</h3>
-              <p className="text-gray-500">Let's start with the basics for your confession board</p>
             </div>
 
             <div className="space-y-4">
@@ -150,11 +150,10 @@ export default function DashboardPage() {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-4">
-                <Shield className="h-6 w-6 text-primary" />
+              <div className="rounded-xl bg-primary/5 p-4">
+                <p className="font-medium">Privacy & Security</p>
+                <p className="mt-1 text-sm text-muted-foreground">Configure who can access your board and how</p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Privacy & Security</h3>
-              <p className="text-gray-500">Configure who can access your board and how</p>
             </div>
 
             <div className="space-y-6">
@@ -192,11 +191,10 @@ export default function DashboardPage() {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-4">
-                <Users className="h-6 w-6 text-primary" />
+              <div className="rounded-xl bg-primary/5 p-4">
+                <p className="font-medium">Board Settings</p>
+                <p className="mt-1 text-sm text-muted-foreground">Control how people can submit confessions</p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Submission Settings</h3>
-              <p className="text-gray-500">Control how people can submit confessions</p>
             </div>
 
             <div className="space-y-6">
@@ -269,7 +267,8 @@ export default function DashboardPage() {
           {
             id: JsonParsed.id,
             title: boardSettings.title,
-            description: boardSettings.description
+            description: boardSettings.description,
+            message_count: 0
           }
         ]);
       }
@@ -351,25 +350,32 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
             {boards.map((board) => (
-              <Link href={`/dashboard/${board.id}`} key={board.id}>
-                <Card className="cursor-pointer hover:shadow-lg transition">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">  <MessageSquare className="h-5 w-5 text-primary" /> {board.title}</CardTitle>
-                    <CardDescription>{board.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>test</span>
-                      <span>Active</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      View Confessions  <ArrowRight className="h-4 w-4 ml-2" />
+              <Card className="hover:shadow-lg transition">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">  <MessageSquare className="h-5 w-5 text-primary" /> {board.title}</CardTitle>
+                  <CardDescription>{board.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>{board.message_count} messages</span>
+                    <span>Active</span>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <div className="flex w-full items-center gap-4">
+                    <Link href={`/dashboard/${board.id}`} key={board.id} className="flex-1">
+                      <Button variant="outline" className="w-full">
+                        View Confessions  
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+
+                    <Button size="icon" variant="ghost">
+                      <Copy />
                     </Button>
-                  </CardFooter>
-                </Card>
-              </Link>
+                  </div>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         </div>
@@ -377,16 +383,16 @@ export default function DashboardPage() {
 
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full border-t px-4 md:px-6">
         <p className="text-xs text-gray-500">
-          © 2025 ConfessBoard. All rights reserved.
+          © 2026 ConfessBoard. All rights reserved.
         </p>
       </footer>
 
 
 
       <Dialog open={showCreateBoard} onOpenChange={setShowCreateBoard}>
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[750px]">
           <DialogHeader>
-            <DialogTitle>Create New Board</DialogTitle>
+            <DialogTitle>Create a board</DialogTitle>
             <DialogDescription>
               Step {currentStep} of {totalSteps} - Set up your confession board
             </DialogDescription>
@@ -403,7 +409,10 @@ export default function DashboardPage() {
 
           <div className="min-h-[400px]">{renderStepContent()}</div>
 
-          <DialogFooter className="flex justify-between">
+          <DialogFooter className="flex-row justify-between sm:justify-between">
+            <Button variant="ghost" onClick={handleDialogClose}>
+              Cancel
+            </Button>
             <div className="flex gap-2">
               {currentStep > 1 && (
                 <Button variant="outline" onClick={prevStep}>
@@ -411,11 +420,7 @@ export default function DashboardPage() {
                   Previous
                 </Button>
               )}
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handleDialogClose}>
-                Cancel
-              </Button>
+
               {currentStep < totalSteps ? (
                 <Button onClick={nextStep} disabled={!canProceed()}>
                   Next

@@ -85,7 +85,7 @@ export default function (app: Hono) {
           });
 
           return c.json({
-            DiscordID: Account?.discordId,
+            DiscordID: Account?.discord_id,
             Avatar: Account?.avatar,
             UserName: Account?.username,
           });
@@ -108,7 +108,7 @@ export default function (app: Hono) {
             });
 
             return c.json({
-              DiscordID: Account?.discordId,
+              DiscordID: Account?.discord_id,
               Avatar: Account?.avatar,
               UserName: Account?.username,
             });
@@ -130,7 +130,7 @@ export default function (app: Hono) {
             });
 
             return c.json({
-              DiscordID: Account?.discordId,
+              DiscordID: Account?.discord_id,
               Avatar: Account?.avatar,
               UserName: Account?.username,
             });

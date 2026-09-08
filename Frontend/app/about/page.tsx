@@ -76,7 +76,7 @@ export default function AboutPage() {
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full border-t px-4 md:px-6">
         <p className="text-xs text-gray-500">
-          © 2025 ConfessBoard. All rights reserved.
+          © 2026 ConfessBoard. All rights reserved.
         </p>
       </footer>
     </div>

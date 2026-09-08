@@ -2,7 +2,15 @@ import { db } from "./client.ts";
 
 export async function getBoardsByUserToken(token: string) {
     const resullt = await db.query(
-        `SELECT id, title, description 
+        `SELECT 
+            id, 
+            title, 
+            description,
+            (
+                SELECT COUNT(*)
+                FROM messages
+                WHERE messages.board_id = boards.id
+            )::int AS message_count
         FROM boards
         WHERE owner_id = (
             SELECT discord_id FROM users WHERE token = $1
