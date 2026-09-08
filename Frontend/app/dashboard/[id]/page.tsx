@@ -123,7 +123,7 @@ export default function DashboardPage({
           </div>
 
           {Board.messages?.map((e) => (
-            <div className="p-4 border rounded-lg">
+            <div key={e.id} className="p-4 border rounded-lg">
               <p className="text-sm text-gray-500 mb-1">
                 {e.timestamp}
               </p>
