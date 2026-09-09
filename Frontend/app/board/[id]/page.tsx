@@ -63,7 +63,6 @@ export default function BoardPage({
     if (userData && !userData.error) {
       login(userData);
     }
-
   };
   const { id } = use(params);
   const [Board, setBoard] = useState<Board | null>(null);
@@ -88,10 +87,12 @@ export default function BoardPage({
       if (userBoard && !userBoard.error) {
         // this is temp, most likely a message iont he future
         setBoard(userBoard.data);
-        
+        return true;
       } else {
-
+        console.log(userBoard.error);
       }
+
+     
     } catch {
       return false;
     }
