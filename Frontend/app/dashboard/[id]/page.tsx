@@ -59,9 +59,9 @@ export default function DashboardPage({
 
   useEffect(() => {
     async function GetBoards() {
-      var apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log(apiUrl);
-      const response = await fetch(`${apiUrl}/api/v1/board/view/${id}`, {
+      var baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      const response = await fetch(`${baseUrl}/api/v1/board/view/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

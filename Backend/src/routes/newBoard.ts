@@ -15,7 +15,7 @@ export default function (app: Hono) {
         const Account = await db.query("SELECT * FROM users WHERE token = $1", [cookieiei]).then((res) => res.rows[0]);
 
         if (Account) {
-          const { title, description } = await c.req.json();
+          const { title, description, theme} = await c.req.json();
 
           const result = await db.query(
             `INSERT INTO boards (
@@ -40,7 +40,7 @@ export default function (app: Hono) {
             description,
             Account.discord_id,
             true,
-            "dark",
+            theme,
             false,
             "",
           ])

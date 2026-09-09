@@ -38,6 +38,7 @@ interface BoardSettings {
   allowAnonymous: boolean
   maxLength: string
   cooldownPeriod: string
+  theme: string,
   isPublic: boolean
   customSlug: string
 }
@@ -56,6 +57,7 @@ export default function DashboardPage() {
     allowAnonymous: true,
     maxLength: "500",
     cooldownPeriod: "none",
+    theme: "dark",
     isPublic: true,
     customSlug: "",
   })
@@ -210,6 +212,25 @@ export default function DashboardPage() {
                   className="h-4 w-4"
                 />
               </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Board Theme</Label>
+                  <p className="text-sm text-muted-foreground">Choose how others see the confession</p>
+                </div>
+                <Select
+                  value={boardSettings.theme}
+                  onValueChange={(e) => setBoardSettings((prev) => ({ ...prev, theme: e }))}
+                >
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="dark"></SelectValue>
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="dark">dark</SelectItem>
+                    <SelectItem value="light">light</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         )
@@ -221,9 +242,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function GetBoards() {
-      var apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log(apiUrl);
-      const response = await fetch(`${apiUrl}/api/v1/board/view`, {
+      var baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      const response = await fetch(`${baseUrl}/api/v1/board/view`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -244,8 +265,9 @@ export default function DashboardPage() {
   }, []);
 
   const CreateBoard = async () => {
-    var apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const apiResponse = await fetch(`${apiUrl}/api/v1/board/new`, {
+    var baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    const apiResponse = await fetch(`${baseUrl}/api/v1/board/new`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -253,13 +275,15 @@ export default function DashboardPage() {
       body: JSON.stringify({
         title: boardSettings.title,
         description: boardSettings.description,
+        theme: boardSettings.theme
       }),
       credentials: "include",
     });
 
     const JsonParsed = await apiResponse.json();
-    console.log(JsonParsed);
+
     if (JsonParsed) {
+      console.log(JsonParsed);
       if (!JsonParsed.error) {
         setShowCreateBoard(false);
         setBoards(prevBoards => [
@@ -350,7 +374,7 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
             {boards.map((board) => (
-              <Card className="hover:shadow-lg transition">
+              <Card className="hover:shadow-lg transition" key={board.id}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">  <MessageSquare className="h-5 w-5 text-primary" /> {board.title}</CardTitle>
                   <CardDescription>{board.description}</CardDescription>
@@ -365,7 +389,7 @@ export default function DashboardPage() {
                   <div className="flex w-full items-center gap-4">
                     <Link href={`/dashboard/${board.id}`} key={board.id} className="flex-1">
                       <Button variant="outline" className="w-full">
-                        View Confessions  
+                        View Confessions
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
                     </Link>

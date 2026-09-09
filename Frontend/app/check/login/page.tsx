@@ -23,7 +23,8 @@ export default function LoginPage() {
     var boardId = searchParams.get("state");
     const disccode = searchParams.get("code");
 
-    if (!boardId) console.log("isnt a board or no state idk");
+    if (!boardId) 
+      console.log("boardId is empty/null");
     else {
       const decoded = decodeURIComponent(boardId);
       boardId = decoded.split("=")[1];
@@ -31,10 +32,11 @@ export default function LoginPage() {
 
     console.log(boardId);
     console.log(disccode);
+    
     async function Login() {
-      var apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log(apiUrl);
-      const response = await fetch(`${apiUrl}/api/v1/discord`, {
+      var baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      const response = await fetch(`${baseUrl}/api/v1/discord`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +48,6 @@ export default function LoginPage() {
         credentials: "include",
       });
 
-      //http://127.0.0.1:3000/check/login?code=LPyTdEGiJ8J33m6OJw2HRsAduxfs6u&state=board_id%3D6808f76b3a2a97e3c94ca2f1
       const apiresponse = await response.json();
 
       if (apiresponse) {
