@@ -35,12 +35,14 @@ export default function (app: Hono) {
     try {
       const { code, needAccount } = await c.req.json();
       const CLIENT_ID = process.env.CLIENT_ID;
+      const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
       if(!CLIENT_ID) throw new Error("Missing CLIENT_ID env var")
+      if(!CLIENT_SECRET) throw new Error("Missing CLIENT_SECRET env var")
 
       const params = new URLSearchParams();
       params.append("client_id", CLIENT_ID);
-      params.append("client_secret", CLIENT_ID);
+      params.append("client_secret", CLIENT_SECRET);
       params.append("code", code);
       params.append("grant_type", "authorization_code");
       params.append("redirect_uri", process.env.REDIRECT_URI!);
