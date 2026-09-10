@@ -16,15 +16,21 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageSquare } from "lucide-react";
 import { useUserStore } from "@/hooks/useUserStore";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SettingsPage() {
   const { isAuthenticated, user } = useUserStore();
   const router = useRouter();
 
+  const pathname = usePathname();
   useEffect(() => {
-    if (!isAuthenticated) router.push("/login");
+    if (!isAuthenticated) {
+      const next = encodeURIComponent(
+        pathname
+      );
+      router.push(`/login?next=${next}`);
+    };
   }, [isAuthenticated, router]);
 
   if (!isAuthenticated) return <div>Redirecting</div>;
@@ -44,7 +50,7 @@ export default function SettingsPage() {
             Dashboard
           </Link>
           <Link
-            href="/settings"
+            href="/dashboard/settings"
             className="text-sm font-medium hover:underline underline-offset-4"
           >
             Settings

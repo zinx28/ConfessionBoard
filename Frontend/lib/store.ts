@@ -1,13 +1,13 @@
 type State = { [key: string]: any }
-
 type Getter = { [key: string]: () => any }
-
 type Action = { [key: string]: Function }
+type Listener = () => void
 
 class Store {
   state: State = {}
   getters: Getter = {}
   actions: Action = {}
+  private listeners: Set<Listener> = new Set();
 
   constructor() {
     this.state = {}
@@ -33,6 +33,12 @@ class Store {
 
   setState(key: string, value: any) {
     this.state[key] = value
+    this.listeners.forEach(listener => listener())
+  }
+
+  subscribe(listener: Listener) {
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
   }
 
   dispatch(action: string, ...args: any[]) {

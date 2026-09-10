@@ -314,7 +314,7 @@ export default function DashboardPage() {
             Dashboard
           </Link>
           <Link
-            href="/settings"
+            href="/dashboard/settings"
             className="text-sm font-medium hover:underline underline-offset-4"
           >
             Settings
@@ -387,7 +387,7 @@ export default function DashboardPage() {
                 </CardContent>
                 <CardFooter>
                   <div className="flex w-full items-center gap-4">
-                    <Link href={`/dashboard/${board.id}`} key={board.id} className="flex-1">
+                    <Link href={`/dashboard/view/${board.id}`} key={board.id} className="flex-1">
                       <Button variant="outline" className="w-full">
                         View Confessions
                         <ArrowRight className="h-4 w-4 ml-2" />

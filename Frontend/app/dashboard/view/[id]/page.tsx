@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Copy, MessageSquare } from "lucide-react";
 import { useUserStore } from "@/hooks/useUserStore";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -36,8 +36,14 @@ export default function DashboardPage({
   const { id } = use(params);
   const router = useRouter();
 
+  const pathname = usePathname();
   useEffect(() => {
-    if (!isAuthenticated) router.push("/login");
+    if (!isAuthenticated) {
+      const next = encodeURIComponent(
+        pathname 
+      );
+      router.push(`/login?next=${next}`);
+    };
   }, [isAuthenticated, router]);
 
   if (!isAuthenticated) return <div>Redirecting</div>;
@@ -53,7 +59,7 @@ export default function DashboardPage({
     username: "";
   };
   const [Board, setBoard] = useState({
-    title: "test",
+    title: "none",
     messages: [] as MessageType[],
   });
 
@@ -96,7 +102,7 @@ export default function DashboardPage({
             Dashboard
           </Link>
           <Link
-            href="/settings"
+            href="/dashboard/settings"
             className="text-sm font-medium hover:underline underline-offset-4"
           >
             Settings

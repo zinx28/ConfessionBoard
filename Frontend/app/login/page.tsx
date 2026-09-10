@@ -10,12 +10,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ArrowLeft, MessageSquare } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUserStore } from "@/hooks/useUserStore";
 import { useEffect } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useUserStore();
 
   const checkSession = async () => {
@@ -35,7 +36,9 @@ export default function LoginPage() {
       // we only want to auto re-direct if they aren't a temp user
       if (!userData.Temp) {
         login(userData);
-        router.push("/dashboard");
+
+        const next = searchParams.get("next") || "/dashboard"
+        router.push(next);
       }
     }
 

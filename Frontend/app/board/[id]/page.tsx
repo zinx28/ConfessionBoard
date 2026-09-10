@@ -118,6 +118,7 @@ export default function BoardPage({
     html.classList.remove("light", "dark")
     html.classList.add(Board.theme)
   }, [Board])
+  
   const [confession, setConfession] = useState("");
 
   const boardMessage = async (e: React.FormEvent) => {
