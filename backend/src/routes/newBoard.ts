@@ -101,6 +101,7 @@ export default function (app: Hono) {
 
           return c.json({
             title: board.title,
+            description: board.description || "",
             messages: messages,
           });
         }

@@ -35,7 +35,7 @@ export async function getBoardsByUserToken(token: string) {
  */
 export async function getBoardByUserToken(token: string,boardId: string) {
     const result = await db.query(
-        `SELECT b.id, b.title
+        `SELECT b.id, b.title, b.description
         FROM boards b
         INNER JOIN users u ON b.owner_id = u.discord_id
         WHERE u.token = $1 AND b.id = $2

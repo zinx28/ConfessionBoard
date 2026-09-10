@@ -89,22 +89,20 @@ export default function BoardPage({
         // this is temp, most likely a message iont he future
         setBoard(userBoard.data);
         return true;
-      } else {
-        console.log(userBoard.error);
-      }
+      } else
+        console.error(userBoard.error);
 
-
-    } catch {
+    } catch (err) {
+      console.error("Error loading board:", err)
       return false;
     }
-
   };
 
   useEffect(() => {
     ///api/v1/board/user/view/
-    viewBoard().then((valid) => {
+    viewBoard().then(async (valid) => {
       if (!valid) return;
-      checkSession();
+      await checkSession();
     }).finally(() => {
       setIsSubmitting(false);
       setIsLoadingBoard(false);
@@ -132,7 +130,7 @@ export default function BoardPage({
       const response = await fetch(`${baseUrl}/api/v1/board/user/message/${id}`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: confession,
