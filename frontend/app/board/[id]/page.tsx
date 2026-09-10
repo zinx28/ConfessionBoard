@@ -93,7 +93,7 @@ export default function BoardPage({
         console.log(userBoard.error);
       }
 
-     
+
     } catch {
       return false;
     }
@@ -112,40 +112,46 @@ export default function BoardPage({
   }, []);
 
   useEffect(() => {
-    if(!Board) return;
+    if (!Board) return;
 
     const html = document.documentElement
 
     html.classList.remove("light", "dark")
     html.classList.add(Board.theme)
   }, [Board])
-  
+
   const [confession, setConfession] = useState("");
 
   const boardMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    var baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    try {
+      var baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    const response = await fetch(`${baseUrl}/api/v1/board/user/message/${id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: JSON.stringify({
-        message: confession,
-      }),
-      credentials: "include",
-    });
+      const response = await fetch(`${baseUrl}/api/v1/board/user/message/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: JSON.stringify({
+          message: confession,
+        }),
+        credentials: "include",
+      });
 
-    var boardResponse = await response.json();
+      var boardResponse = await response.json();
 
-    if (boardResponse) {
-      console.log(boardResponse);
+      if (!response.ok) {
+        console.error(boardResponse);
+        return;
+      }
+
+      setConfession("")
+    } finally {
+      await new Promise((resolve) => setTimeout(resolve, 500)); // slightly slower
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   return (
@@ -168,7 +174,7 @@ export default function BoardPage({
         {isLoadingBoard ? (
           <div className="flex justify-center py-12 gap-2">
             <p className="text-muted-foreground">Loading Board</p>
-            <Spinner className="h-5 w-5"/>
+            <Spinner className="h-5 w-5" />
           </div>
         ) : Board ? (
           <>
@@ -176,8 +182,8 @@ export default function BoardPage({
               <CardHeader>
                 <CardTitle>{Board.title}</CardTitle>
                 <CardDescription>
-                  Share your thoughts anonymously with {Board.owner_id}. They won't know who you
-                  are.
+                  Share your thoughts {Board.anonymous ? `anonymously with ${Board.owner_id}. They won't know who you
+                  are.` : `with ${Board.owner_id}. They will know who you are.`}
                 </CardDescription>
                 <CardDescription>{Board.description}</CardDescription>
               </CardHeader>
@@ -202,8 +208,8 @@ export default function BoardPage({
                 </form>
               </CardContent>
               <CardFooter className="text-xs text-gray-500">
-                All confessions are anonymous. The board owner will not be able to
-                see who sent this message.
+                {Board.anonymous ? `All confessions are anonymous on this board. The board owner will not be able to
+                see who sent this message.` : "All confessions are public on this board. The board owner will be able to see who sent this message"}
               </CardFooter>
             </Card>
 

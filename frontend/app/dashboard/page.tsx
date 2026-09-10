@@ -179,7 +179,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="space-y-0.5">
                   <Label className="text-base">Allow Anonymous Confessions</Label>
-                  <p className="text-sm text-gray-500">Let people submit without creating an account</p>
+                  <p className="text-sm text-gray-500">Let people submit without knowing who they are</p>
                 </div>
                 <input
                   type="checkbox"
@@ -278,7 +278,9 @@ export default function DashboardPage() {
       body: JSON.stringify({
         title: boardSettings.title,
         description: boardSettings.description,
-        theme: boardSettings.theme
+        theme: boardSettings.theme,
+        allowAnonymous: boardSettings.allowAnonymous,
+        allowMultiple: boardSettings.allowMultiple
       }),
       credentials: "include",
     });

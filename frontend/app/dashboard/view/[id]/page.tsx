@@ -2,31 +2,21 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Copy, MessageSquare } from "lucide-react";
 import { useUserStore } from "@/hooks/useUserStore";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
+
+type MessageType = {
+  boardId: "";
+  id: "";
+  image: null;
+  message: "";
+  timestamp: "";
+  userId: "";
+  username: "";
+};
 
 export default function DashboardPage({
   params,
@@ -52,15 +42,7 @@ export default function DashboardPage({
   </div>;
 
   // this should be removed on view api called
-  type MessageType = {
-    boardId: "";
-    id: "";
-    image: null;
-    message: "";
-    timestamp: "";
-    userId: "";
-    username: "";
-  };
+
   const [Board, setBoard] = useState({
     title: "none",
     messages: [] as MessageType[],
@@ -134,9 +116,10 @@ export default function DashboardPage({
 
           {Board.messages?.map((e) => (
             <div key={e.id} className="p-4 border rounded-lg">
-              <p className="text-sm text-gray-500 mb-1">
-                {e.timestamp}
-              </p>
+              <div className="flex gap-4">
+                <p className="text-sm text-gray-500 mb-1">{e.username}</p>
+                <p className="text-sm text-gray-500 mb-1">{e.timestamp}</p>
+              </div>
               <p>{e.message}</p>
             </div>
           ))}

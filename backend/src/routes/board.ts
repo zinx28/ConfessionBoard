@@ -41,6 +41,7 @@ export default function (app: Hono) {
       let CanSendMessage = false;
       let AccountData: {
         DiscordID: string;
+        Username: string;
       } | null = null;
 
       if (!ID) return c.json({ error: "Board ID missing" }, 400);
@@ -56,15 +57,17 @@ export default function (app: Hono) {
         CanSendMessage = true;
         AccountData = {
           DiscordID: Account.discordId,
+          Username: Account.username
         };
       } else {
         const ProfileData = await getProfileData(cookieiei, true);
 
         if (ProfileData) {
-          const [discordID] = ProfileData;
+          const [discordID, temp] = ProfileData;
 
           AccountData = {
-            DiscordID: discordID,
+            DiscordID: discordID, // might be better if we used account id instead
+            Username: temp.Username,
           };
         }
       }
@@ -85,6 +88,12 @@ export default function (app: Hono) {
           );
         }
       }
+
+      // anonymous board
+      let username = "anonymous"
+      if (!board.anonymous)
+        username = AccountData.Username
+
 
       const { message } = await c.req.json();
 
@@ -107,7 +116,7 @@ export default function (app: Hono) {
     RETURNING *`,
         [
           AccountData.DiscordID,
-          "",
+          username,
           message,
           ID
         ]
