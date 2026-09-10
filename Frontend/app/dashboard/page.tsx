@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 interface BoardSettings {
   title: string
@@ -71,7 +72,9 @@ export default function DashboardPage() {
     if (!isAuthenticated) router.push("/login");
   }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) return <div>Redirecting</div>;
+  if (!isAuthenticated) return <div className="flex min-h-screen items-center justify-center">
+    <Spinner className="h-8 w-8" />
+  </div>;
 
   // this should be removed on view api called
   const [boards, setBoards] = useState([

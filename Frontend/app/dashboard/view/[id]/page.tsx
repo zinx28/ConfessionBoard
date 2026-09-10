@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function DashboardPage({
   params,
@@ -40,13 +41,15 @@ export default function DashboardPage({
   useEffect(() => {
     if (!isAuthenticated) {
       const next = encodeURIComponent(
-        pathname 
+        pathname
       );
       router.push(`/login?next=${next}`);
     };
   }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) return <div>Redirecting</div>;
+  if (!isAuthenticated) return <div className="flex min-h-screen items-center justify-center">
+    <Spinner className="h-8 w-8" />
+  </div>;
 
   // this should be removed on view api called
   type MessageType = {
@@ -123,8 +126,8 @@ export default function DashboardPage({
           <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold">{Board.title}</h1>
             <p className="inline-flex items-center text-gray-500 gap-1">
-             <Link href="/dashboard" className="inline-flex items-center gap-1"><ArrowLeft className="size-4" /> Go back</Link>
-             <span> | Viewing a confession</span>
+              <Link href="/dashboard" className="inline-flex items-center gap-1"><ArrowLeft className="size-4" /> Go back</Link>
+              <span> | Viewing a confession</span>
             </p>
             <p className="text-gray-500">Messages | {Board.messages.length}</p>
           </div>

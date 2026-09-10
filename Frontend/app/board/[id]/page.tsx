@@ -26,6 +26,7 @@ import {
 import { useUserStore } from "@/hooks/useUserStore";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { Spinner } from "@/components/ui/spinner";
 
 type Board = {
   id: string,
@@ -165,8 +166,9 @@ export default function BoardPage({
       <main className="flex-1  mx-auto py-8 px-4">
 
         {isLoadingBoard ? (
-          <div className="flex justify-center py-12">
-            <p className="text-muted-foreground">Loading Board...</p>
+          <div className="flex justify-center py-12 gap-2">
+            <p className="text-muted-foreground">Loading Board</p>
+            <Spinner className="h-5 w-5"/>
           </div>
         ) : Board ? (
           <>
