@@ -12,9 +12,9 @@ import {
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUserStore } from "@/hooks/useUserStore";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useUserStore();
@@ -100,4 +100,14 @@ export default function LoginPage() {
       </footer>
     </div>
   );
+}
+
+
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+        <LoginContent />
+    </Suspense>
+  )
 }

@@ -1,5 +1,11 @@
 import { db } from "./client.ts";
 
+/**
+ * Loads every boards from a specific user
+ * 
+ * @param token Users Token
+ * @returns Boards
+ */
 export async function getBoardsByUserToken(token: string) {
     const resullt = await db.query(
         `SELECT 
@@ -20,6 +26,13 @@ export async function getBoardsByUserToken(token: string) {
     return resullt.rows;
 }
 
+/**
+ * Loads a board from a specific user
+ * 
+ * @param token Users Token
+ * @param boardId Board ID
+ * @returns Board
+ */
 export async function getBoardByUserToken(token: string,boardId: string) {
     const result = await db.query(
         `SELECT b.id, b.title
@@ -32,6 +45,12 @@ export async function getBoardByUserToken(token: string,boardId: string) {
     return result.rows[0] ?? null;
 }
 
+/**
+ * Gets the boards messages from boardID
+ * 
+ * @param boardId Board ID
+ * @returns 
+ */
 export async function getBoardMessages(boardId: string) {
     const result = await db.query(
         `SELECT *
@@ -43,6 +62,13 @@ export async function getBoardMessages(boardId: string) {
     return result.rows ?? [];
 }
 
+/**
+ * Gets the board messages from a user
+ * 
+ * @param boardId Board ID
+ * @param userId  User ID
+ * @returns 
+ */
 export async function getBoardMessagesByUser(boardId: string, userId: string) {
     const result = await db.query(
         `SELECT *
@@ -54,6 +80,12 @@ export async function getBoardMessagesByUser(boardId: string, userId: string) {
     return result.rows[0] ?? null;
 }
 
+/**
+ * Gets board by id
+ * 
+ * @param boardId Board ID
+ * @returns 
+ */
 export async function getBoardById(boardId: string) {
     const result = await db.query(
         `SELECT *
@@ -65,6 +97,12 @@ export async function getBoardById(boardId: string) {
     return result.rows[0] ?? null;
 }
 
+/**
+ * Gets board with "allow_multiple" tag
+ * 
+ * @param boardId Board ID
+ * @returns 
+ */
 export async function getBoardAllowMultiple(boardId: string) {
     const result = await db.query(
         `SELECT allow_multiple

@@ -1,7 +1,12 @@
 {
-  "name": "my-v0-project",
+  "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "author": "zinx28",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zinx28/ConfessionBoard.git"
+  },
   "scripts": {
     "dev": "next dev -H 127.0.0.1",
     "build": "next build",

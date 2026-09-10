@@ -1,1 +1,3 @@
-### mostly v0 generated ui (2025) with changes
+- this backend was originally created in 2025
+- when i started this project i wanted it to be quick soooo i just asked "v0" to generate ui, but anychanges after the start isnt by v0
+- third party stuff would be shadcn

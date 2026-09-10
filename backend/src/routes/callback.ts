@@ -8,16 +8,39 @@ import {
   GlobalCacheProfiles,
 } from "../utils/tempLogin";
 import { createUser, getUserByDiscordID, updateUserToken } from "../database/users.ts";
+import { authLimiter } from "../middleware/rateLimiter.ts";
+
+function setAuthCookie(c: any, token: string) {
+  setCookie(c, "auth_token", token, {
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    domain: process.env.HOST || "127.0.0.1",
+    httpOnly: true,
+    maxAge: 604800,
+    //expires: new Date(Date.now() + 604800000),
+    sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
+  });
+}
+
+function respondWithAccount(c: any, account: any) {
+  return c.json({
+    DiscordID: account?.discord_id,
+    Avatar: account?.avatar,
+    UserName: account?.username,
+  });
+}
 
 export default function (app: Hono) {
-  app.post("/api/v1/discord", async (c) => {
+  app.post("/api/v1/discord", authLimiter, async (c) => {
     try {
       const { code, needAccount } = await c.req.json();
+      const CLIENT_ID = process.env.CLIENT_ID;
 
-      console.log(code);
+      if(!CLIENT_ID) throw new Error("Missing CLIENT_ID env var")
+
       const params = new URLSearchParams();
-      params.append("client_id", process.env.CLIENT_ID!);
-      params.append("client_secret", process.env.CLIENT_SECRET!);
+      params.append("client_id", CLIENT_ID);
+      params.append("client_secret", CLIENT_ID);
       params.append("code", code);
       params.append("grant_type", "authorization_code");
       params.append("redirect_uri", process.env.REDIRECT_URI!);
@@ -45,18 +68,13 @@ export default function (app: Hono) {
 
       const userData = userResponse.data;
 
-      console.log(userData);
-
       if (userData) {
         //needAccount ~ this can be true or false, if they created a account,
         // then needacc is false, it will use the created account already
 
         const Account = await getUserByDiscordID(userData.id);
         // todo
-        var token = Bun.password.hashSync(userData.id, {
-          algorithm: "bcrypt",
-          cost: 4,
-        });
+        var token = crypto.randomUUID(); // not done... i would like to say
 
         if (needAccount) {
           if (!Account) {
@@ -66,29 +84,16 @@ export default function (app: Hono) {
               token,
               userData.avatar
             )
-              
+
             console.log("CREATED A ACCOUNT");
           } else {
             await updateUserToken(userData.id, token);
             console.log("FOUND A ACCOUNTHAHAHAH!!");
           }
 
-          console.log(process.env.NODE_ENV === "production");
-          setCookie(c, "auth_token", token, {
-            path: "/",
-            secure: process.env.NODE_ENV === "production",
-            domain: process.env.HOST || "127.0.0.1",
-            httpOnly: true,
-            maxAge: 604800,
-            //expires: new Date(Date.now() + 604800000),
-            sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
-          });
+          setAuthCookie(c, token);
 
-          return c.json({
-            DiscordID: Account?.discord_id,
-            Avatar: Account?.avatar,
-            UserName: Account?.username,
-          });
+          return respondWithAccount(c, Account);
         } else {
           var ProfileData = await getProfileDataByDscID(userData.id);
 
@@ -97,21 +102,9 @@ export default function (app: Hono) {
             UserData.Token = token;
             UserData.updatedSince = new Date(Date.now() + 15 * 60 * 1000);
 
-            setCookie(c, "auth_token", token, {
-              path: "/",
-              secure: process.env.NODE_ENV === "production",
-              domain: process.env.HOST || "127.0.0.1",
-              httpOnly: true,
-              maxAge: 604800,
-              //expires: new Date(Date.now() + 604800000),
-              sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
-            });
+            setAuthCookie(c, token);
 
-            return c.json({
-              DiscordID: Account?.discord_id,
-              Avatar: Account?.avatar,
-              UserName: Account?.username,
-            });
+            return respondWithAccount(c, Account);
           } else {
             GlobalCacheProfiles[userData.id] = {
               Token: token,
@@ -119,27 +112,17 @@ export default function (app: Hono) {
               updatedSince: new Date(Date.now() + 15 * 60 * 1000),
             };
 
-            setCookie(c, "auth_token", token, {
-              path: "/",
-              secure: process.env.NODE_ENV === "production",
-              domain: process.env.HOST || "127.0.0.1",
-              httpOnly: true,
-              maxAge: 604800,
-              //expires: new Date(Date.now() + 604800000),
-              sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
-            });
+            setAuthCookie(c, token);
 
-            return c.json({
-              DiscordID: Account?.discord_id,
-              Avatar: Account?.avatar,
-              UserName: Account?.username,
-            });
+            return respondWithAccount(c, Account);
           }
         }
       }
     } catch (err) {
-      console.error(err);
+      console.error("Discord auth error:", err);
+      return c.json({ error: "Authentication failed" }, 500)
     }
-    return c.body("hi");
+
+    return c.json({ error: "Authentication failed" }, 500)
   });
 }

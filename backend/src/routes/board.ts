@@ -4,55 +4,53 @@ import { db } from "../database/client.ts";
 import { getProfileData } from "../utils/tempLogin";
 import { getUserByTokenD } from "../database/users.ts";
 import { getBoardAllowMultiple, getBoardById, getBoardMessagesByUser } from "../database/boards.ts";
+import { messageLimiter, readLimiter } from "../middleware/rateLimiter.ts";
+
+// move this!
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function (app: Hono) {
   /*
       Returns data for each id
       */
-  app.get("/api/v1/board/user/view/:id", async (c) => {
+  app.get("/api/v1/board/user/view/:id", readLimiter, async (c) => {
     try {
       const ID = c.req.param("id");
 
-      if (ID) {
-        const Board = await getBoardById(ID);
+      if (!ID) return c.json({ error: "Board id missing" }, 400);
+      if (!UUID_REGEX.test(ID)) return c.json({ error: "Invaild board id" }, 400)
 
-        if (Board) {
-          return c.json({
-            message: "",
-            data: Board,
-            error: false,
-          });
-        }
-      }
+      const Board = await getBoardById(ID);
+
+      if (!Board) return c.json({ error: "Board not found" }, 404)
 
       return c.json({
-        message: "Failed to find board",
-        error: true,
+        data: Board,
       });
-    } catch (err) { }
+    } catch (err) {
+      console.error("Error fetching board:", err);
+    }
 
-    return c.json({
-      message: "internal error",
-      error: true,
-    });
+    return c.json({ message: "internal error" }, 500);
   });
 
   // todo add a check instweasd
-  app.post("/api/v1/board/user/message/:id", async (c) => {
+  app.post("/api/v1/board/user/message/:id", messageLimiter, async (c) => {
     try {
       const ID = c.req.param("id");
-      var CanSendMessage = false;
-      var AccountData: {
+      let CanSendMessage = false;
+      let AccountData: {
         DiscordID: string;
       } | null = null;
 
       if (!ID) return c.json({ error: "Board ID missing" }, 400);
+      if (!UUID_REGEX.test(ID)) return c.json({ error: "Invaild board id" }, 400)
 
       const cookieiei = getCookie(c, "auth_token");
 
       if (!cookieiei) return c.json({ error: "Missing auth token" }, 401);
 
-      const Account = await await getUserByTokenD(cookieiei);
+      const Account = await getUserByTokenD(cookieiei);
 
       if (Account) {
         CanSendMessage = true;
@@ -60,10 +58,10 @@ export default function (app: Hono) {
           DiscordID: Account.discordId,
         };
       } else {
-        var ProfileData = await getProfileData(cookieiei, true);
+        const ProfileData = await getProfileData(cookieiei, true);
 
         if (ProfileData) {
-          var [discordID] = ProfileData;
+          const [discordID] = ProfileData;
 
           AccountData = {
             DiscordID: discordID,
@@ -94,6 +92,10 @@ export default function (app: Hono) {
         return c.json({ error: "Message is empty" }, 400);
       }
 
+      if (message.length > 2000) {
+        return c.json({ error: "Message is too long" }, 400)
+      }
+
       const result = await db.query(
         `INSERT INTO messages (
         user_id,
@@ -114,11 +116,10 @@ export default function (app: Hono) {
       const newMessage = result.rows[0];
 
       return c.json({ success: true, message: newMessage });
-    } catch (err) { console.log(err) }
+    } catch (err) {
+      console.error("Error posting message:", err);
+    }
 
-    return c.json({
-      message: "internal error",
-      error: true,
-    });
+    return c.json({ message: "internal error" }, 500);
   });
 }

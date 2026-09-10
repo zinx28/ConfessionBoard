@@ -7,6 +7,7 @@ type Tempusers = {
   updatedSince: Date;
 };
 
+// TODO: REDIS
 type CacheDictionary = { [DiscordID: string]: Tempusers };
 export const GlobalCacheProfiles: CacheDictionary = {};
 

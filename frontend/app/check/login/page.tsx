@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,12 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useUserStore } from "@/hooks/useUserStore";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { login } = useUserStore();
@@ -23,16 +21,13 @@ export default function LoginPage() {
     var boardId = searchParams.get("state");
     const disccode = searchParams.get("code");
 
-    if (!boardId) 
+    if (!boardId)
       console.log("boardId is empty/null");
     else {
       const decoded = decodeURIComponent(boardId);
       boardId = decoded.split("=")[1];
     }
 
-    console.log(boardId);
-    console.log(disccode);
-    
     async function Login() {
       var baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -97,4 +92,13 @@ export default function LoginPage() {
       </Card>
     </div>
   );
+}
+
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
+  )
 }

@@ -2,6 +2,11 @@
   "name": "backend",
   "module": "index.ts",
   "type": "module",
+  "author": "zinx28",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zinx28/ConfessionBoard.git"
+  },
   "scripts": {
     "dev": "bun --port 6920 --hot src/index.ts"
   },
@@ -16,6 +21,7 @@
     "axios": "^1.8.4",
     "dotenv": "^16.5.0",
     "hono": "^4.7.7",
+    "hono-rate-limiter": "^0.5.4",
     "pg": "^8.23.0"
   }
 }
