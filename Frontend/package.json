@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.9.1",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -51,7 +50,6 @@
     "react": "^19.3.0",
     "react-day-picker": "^10.0.1",
     "react-dom": "^19.3.0",
-    "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^4.12.4",
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
