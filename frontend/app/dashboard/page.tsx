@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowRight, ChevronLeft, ChevronRight, Copy, MessageSquare, Shield, Users } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Copy, MessageSquare, Shield, Users } from "lucide-react";
 import { useUserStore } from "@/hooks/useUserStore";
 import { useRouter } from "next/navigation";
 import {
@@ -44,9 +44,38 @@ interface BoardSettings {
   customSlug: string
 }
 
+interface BoardView {
+  id: string
+  title: string
+  description: string
+  message_count: number
+}
+
+function CopyLinkButton({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+    catch (err) {
+      console.error("Failed to copy", err);
+    }
+  }
+
+  return (
+    <Button size="icon" variant="ghost" onClick={handleCopy}>
+      {copied ? <Check/> : <Copy />}
+    </Button>
+  )
+}
+
 export default function DashboardPage() {
   const { isAuthenticated, user } = useUserStore();
   const router = useRouter();
+
   // these stuff are temp, these are only added to get the base feature working, then the
   // improvements and the actual stuff will be implemented
   const [showCreateBoard, setShowCreateBoard] = useState(false);
@@ -68,23 +97,44 @@ export default function DashboardPage() {
   const totalSteps = 3
   const progress = ((currentStep - 1) / (totalSteps - 1)) * 100
 
+  const [boards, setBoards] = useState<BoardView[]>([]);
+
   useEffect(() => {
     if (!isAuthenticated) router.push("/login");
   }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) return <div className="flex min-h-screen items-center justify-center">
-    <Spinner className="h-8 w-8" />
-  </div>;
+  useEffect(() => {
+    if (!isAuthenticated) return;
 
-  // this should be removed on view api called
-  const [boards, setBoards] = useState([
-    {
-      id: "board1",
-      title: "ThisIsAExample",
-      description: "This is a public board!",
-      message_count: 0,
+    async function GetBoards() {
+      var baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/board/view`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", },
+          credentials: "include",
+        });
+
+        const apiresponse = await response.json();
+
+        if (response.ok && apiresponse) {
+          setBoards(apiresponse)
+        }
+      } catch (err) {
+        console.error("Failed fetching board:", err)
+      }
+
+
+      //console.log(apiresponse);
     }
-  ]);
+
+    GetBoards();
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return (<div className="flex min-h-screen items-center justify-center">
+    <Spinner className="h-8 w-8" />
+  </div>);
 
 
   const nextStep = () => {
@@ -243,64 +293,44 @@ export default function DashboardPage() {
     }
   };
 
-  useEffect(() => {
-    async function GetBoards() {
-      var baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      const response = await fetch(`${baseUrl}/api/v1/board/view`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      const apiresponse = await response.json();
-
-      if (apiresponse) {
-        setBoards(apiresponse)
-      }
-
-      console.log(apiresponse);
-    }
-
-    GetBoards();
-  }, []);
 
   const CreateBoard = async () => {
     var baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    const apiResponse = await fetch(`${baseUrl}/api/v1/board/new`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: boardSettings.title,
-        description: boardSettings.description,
-        theme: boardSettings.theme,
-        allowAnonymous: boardSettings.allowAnonymous,
-        allowMultiple: boardSettings.allowMultiple
-      }),
-      credentials: "include",
-    });
+    try {
+      const apiResponse = await fetch(`${baseUrl}/api/v1/board/new`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", },
+        body: JSON.stringify({
+          title: boardSettings.title,
+          description: boardSettings.description,
+          theme: boardSettings.theme,
+          allowAnonymous: boardSettings.allowAnonymous,
+          allowMultiple: boardSettings.allowMultiple
+        }),
+        credentials: "include",
+      });
 
-    const JsonParsed = await apiResponse.json();
+      const JsonParsed = await apiResponse.json();
 
-    if (JsonParsed) {
-      console.log(JsonParsed);
-      if (!JsonParsed.error) {
-        setShowCreateBoard(false);
-        setBoards(prevBoards => [
-          ...prevBoards,
-          {
-            id: JsonParsed.id,
-            title: boardSettings.title,
-            description: boardSettings.description,
-            message_count: 0
-          }
-        ]);
+      if (JsonParsed) {
+        console.log(JsonParsed);
+        if (!JsonParsed.error) {
+          setShowCreateBoard(false);
+          setBoards(prevBoards => [
+            ...prevBoards,
+            {
+              id: JsonParsed.id,
+              title: boardSettings.title,
+              description: boardSettings.description,
+              message_count: 0
+            }
+          ]);
+        }
       }
+    } catch (err) {
+      console.error("Failed creating board:", err);
     }
   };
 
@@ -399,9 +429,9 @@ export default function DashboardPage() {
                       </Button>
                     </Link>
 
-                    <Button size="icon" variant="ghost">
-                      <Copy />
-                    </Button>
+                    <CopyLinkButton url={
+                      typeof window !== "undefined" ? `${window.location.origin}/board/${board.id}` : ""
+                    } />
                   </div>
                 </CardFooter>
               </Card>
@@ -415,8 +445,6 @@ export default function DashboardPage() {
           © 2026 ConfessBoard. All rights reserved.
         </p>
       </footer>
-
-
 
       <Dialog open={showCreateBoard} onOpenChange={setShowCreateBoard}>
         <DialogContent className="sm:max-w-[750px]">

@@ -20,6 +20,13 @@ type MessageType = {
   username: string;
 };
 
+function getMessageFontSize(message: string) {
+  const len = message.length;
+
+  const size = Math.max(1.25, Math.min(6, 6 - len / 80));
+  return `${size}rem`
+}
+
 function BookView({ title, messages, onClose }: {
   title: string, messages: MessageType[], onClose: () => void
 }) {
@@ -64,13 +71,14 @@ function BookView({ title, messages, onClose }: {
             >
               <ChevronLeft className="size-5" />
             </Button>
-            <div>
-              <p className="max-w-5xl text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+            <div className="max-w-7xl w-full px-16 py-8">
+              <p className="text-balance font-semibold leading-tight tracking-tight text-center"
+              style={{ fontSize: getMessageFontSize(messages[current]?.message ?? "")}}>
                 {messages[current]?.message}
               </p>
-              <div className="mt-4 text-sm text-muted-foreground">
+              <p className="mt-4 text-sm text-muted-foreground">
                 {messages[current]?.username == "anonymous" ? "" : messages[current]?.username}
-              </div>
+              </p>
 
             </div>
 

@@ -9,15 +9,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useUserStore } from "@/hooks/useUserStore";
 
 function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { login } = useUserStore();
+  const hasRun = useRef(false); // fix login stuff
 
   useEffect(() => {
+    if(hasRun.current) return;
+    hasRun.current = true;
+    
     var boardId = searchParams.get("state");
     const disccode = searchParams.get("code");
 
@@ -46,11 +50,11 @@ function LoginContent() {
       const apiresponse = await response.json();
 
       if (apiresponse) {
+        login(apiresponse); // whoops!
+
         if (boardId) {
           router.push(`/board/${boardId}`);
         } else router.push("/dashboard");
-
-        login(apiresponse);
       }
 
       console.log(apiresponse);

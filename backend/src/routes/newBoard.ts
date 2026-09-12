@@ -60,7 +60,7 @@ export default function (app: Hono) {
 
       return c.json({ message: "Not authenticated" }, 401);
     } catch (err) {
-      console.log(err)
+      console.log("Failed creating board:", err)
     }
 
     return c.json({ message: "internal error" }, 500);
@@ -81,7 +81,7 @@ export default function (app: Hono) {
         return c.json([])
       }
     } catch (err) {
-      console.error("Error fetching boards):", err);
+      console.error("Error fetching boards:", err);
     }
 
     return c.json({ error: "Not authenticated" }, 401)

@@ -13,6 +13,7 @@ import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUserStore } from "@/hooks/useUserStore";
 import { Suspense, useEffect } from "react";
+import { getDiscordAuthUrl } from "@/lib/discord";
 
 function LoginContent() {
   const router = useRouter();
@@ -75,9 +76,7 @@ function LoginContent() {
             <Button
               className="w-full text-gray bg-[#5865F2] hover:bg-[#4752c4] white"
               onClick={() =>
-                router.push(
-                  "https://discord.com/oauth2/authorize?client_id=1363320877998932209&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcheck%2Flogin&scope=identify"
-                )
+                router.push(getDiscordAuthUrl())
               }
             >
               {/* This was grabbed from SVG library */}

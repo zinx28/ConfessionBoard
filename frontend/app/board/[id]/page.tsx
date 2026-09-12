@@ -27,6 +27,7 @@ import { useUserStore } from "@/hooks/useUserStore";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Spinner } from "@/components/ui/spinner";
+import { getDiscordAuthUrl } from "@/lib/discord";
 
 type Board = {
   id: string,
@@ -215,7 +216,7 @@ export default function BoardPage({
 
             {user?.DiscordID === Board.owner_id ? (
               <div className="text-center">
-                <p className="mb-4 text-sm">Board Owner? <Link href={`/dashboard/${Board.id}`} className="underline">View confessions</Link></p>
+                <p className="mb-4 text-sm">Board Owner? <Link href={`/dashboard/view/${Board.id}`} className="underline">View confessions</Link></p>
               </div>
             ) : (
               <div className="text-center">
@@ -237,9 +238,7 @@ export default function BoardPage({
                   <Button className="w-full sm:w-auto gap-2 px-6"
                     disabled={isSubmitting}
                     onClick={() =>
-                      router.push(
-                        `https://discord.com/oauth2/authorize?client_id=1363320877998932209&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcheck%2Flogin&scope=identify&state=board_id=${id}`
-                      )
+                      router.push(getDiscordAuthUrl(`board_id=${id}`))
                     }
                   >
                     {/* This was grabbed from SVG library */}
