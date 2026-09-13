@@ -98,14 +98,31 @@ export async function getBoardById(boardId: string) {
 }
 
 /**
- * Gets board with "allow_multiple" tag
+ * Gets board with id
  * 
  * @param boardId Board ID
- * @returns 
+ * @returns allow_multiple
  */
 export async function getBoardAllowMultiple(boardId: string) {
     const result = await db.query(
         `SELECT allow_multiple
+        FROM boards
+        WHERE id = $1
+        LIMIT 1`,
+        [boardId]
+    );
+    return result.rows[0] ?? null;
+}
+
+/**
+ * Gets board for submission
+ * 
+ * @param boardId Board ID
+ * @returns 
+ */
+export async function getBoardForSubmission(boardId: string) {
+    const result = await db.query(
+        `SELECT allow_multiple, anonymous
         FROM boards
         WHERE id = $1
         LIMIT 1`,

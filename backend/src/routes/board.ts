@@ -3,7 +3,7 @@ import { getCookie, setCookie } from "hono/cookie";
 import { db } from "../database/client.ts";
 import { getProfileData } from "../utils/tempLogin";
 import { getUserByTokenD } from "../database/users.ts";
-import { getBoardAllowMultiple, getBoardById, getBoardMessagesByUser } from "../database/boards.ts";
+import { getBoardAllowMultiple, getBoardById, getBoardForSubmission, getBoardMessagesByUser } from "../database/boards.ts";
 import { messageLimiter, readLimiter } from "../middleware/rateLimiter.ts";
 
 // move this!
@@ -56,7 +56,7 @@ export default function (app: Hono) {
       if (Account) {
         CanSendMessage = true;
         AccountData = {
-          DiscordID: Account.discordId,
+          DiscordID: Account.discord_id,
           Username: Account.username
         };
       } else {
@@ -71,14 +71,14 @@ export default function (app: Hono) {
           };
         }
       }
-
+      
       if (!AccountData) return c.json({ error: "User not authenticated" }, 401);
 
-      const board = await getBoardAllowMultiple(ID);
+      const board = await getBoardForSubmission(ID);
 
       if (!board) return c.json({ error: "Board not found" }, 404);
 
-      if (!board.allowMultiple) {
+      if (!board.allow_multiple) {
         const existingMessage = await getBoardMessagesByUser(ID, AccountData.DiscordID);
 
         if (existingMessage) {
