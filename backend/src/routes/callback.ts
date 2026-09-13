@@ -88,10 +88,8 @@ export default function (app: Hono) {
             )
 
             console.log("CREATED A ACCOUNT");
-          } else {
+          } else
             await updateUserToken(userData.id, token);
-            console.log("FOUND A ACCOUNTHAHAHAH!!");
-          }
 
           setAuthCookie(c, token);
 

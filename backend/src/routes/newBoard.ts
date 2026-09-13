@@ -4,6 +4,8 @@ import { db } from "../database/client.ts";
 import { getBoardByUserToken, getBoardMessages, getBoardsByUserToken } from "../database/boards.ts";
 import { authLimiter, readLimiter } from "../middleware/rateLimiter.ts";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default function (app: Hono) {
   /*
       Create a new board, temp code
@@ -60,7 +62,7 @@ export default function (app: Hono) {
 
       return c.json({ message: "Not authenticated" }, 401);
     } catch (err) {
-      console.log("Failed creating board:", err)
+      console.error("Failed creating board:", err)
     }
 
     return c.json({ message: "internal error" }, 500);
@@ -91,10 +93,13 @@ export default function (app: Hono) {
   app.post("/api/v1/board/view/:id", readLimiter, async (c) => {
     try {
       const cookieiei = getCookie(c, "auth_token");
-      const IdValue = c.req.param("id");
+      const ID = c.req.param("id");
+
+      if (!ID) return c.json({ error: "Board ID missing" }, 400);
+      if (!UUID_REGEX.test(ID)) return c.json({ error: "Invaild board id" }, 400)
 
       if (cookieiei) {
-        const board = await getBoardByUserToken(cookieiei, IdValue);
+        const board = await getBoardByUserToken(cookieiei, ID);
 
         if (board) {
           const messages = await getBoardMessages(board.id);

@@ -3,8 +3,12 @@
 Anonymous Confession Board - Create your own confession board and let others share their secrets with you.
 
 <!--i need to put a image here!!!!!!!! help-->
+![ConfessionBoard screenshot](./img/confessme.png)
 
 ## Features
+- Create a board with a title, description, theme and more!
+- Read confessions in a grid or in a fullscreen "book" view -- one message at a time (you can use arrow keys!!!!)
+- Share it!
 
 ## Getting Started
 
@@ -48,7 +52,7 @@ cd frontend
 bun run dev
 ```
 
-The app should now be running at `http://127.0.0.1:3000` (frontend) with the API on `http://127.0.0.1:<port>`
+The app should now be running at `http://127.0.0.1:3000` (frontend) with the API on `http://127.0.0.1:6920`
 
 ## Contributing
 This is a personal project, but issues and pull requests are welcome. Feel free to open an issue if you spot a bug or have a suggestion.

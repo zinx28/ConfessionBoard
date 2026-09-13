@@ -8,7 +8,7 @@ export default function (app: Hono) {
   /*
       Verify's the user
       */
-  app.post("/api/v1/account/check", authLimiter, async (c) => {
+  app.get("/api/v1/account/check", authLimiter, async (c) => {
     try {
       const cookieiei = getCookie(c, "auth_token");
 

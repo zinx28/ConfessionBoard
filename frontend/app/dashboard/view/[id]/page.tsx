@@ -9,16 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-type MessageType = {
-  boardId: string;
-  id: string;
-  image: string | null;
-  message: string;
-  timestamp: string;
-  userId: string;
-  username: string;
-};
+import { MessageType } from "@/types/message";
 
 function getMessageFontSize(message: string) {
   const len = message.length;

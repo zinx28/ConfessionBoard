@@ -28,17 +28,8 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Spinner } from "@/components/ui/spinner";
 import { getDiscordAuthUrl } from "@/lib/discord";
+import { Board } from "@/types/board";
 
-type Board = {
-  id: string,
-  owner_id: string,
-  title: string,
-  description: string,
-  anonymous: boolean,
-  allowMultiple: boolean,
-  theme: string,
-  background: string
-}
 
 export default function BoardPage({
   params,
@@ -53,10 +44,7 @@ export default function BoardPage({
     var baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     const accountCheck = await fetch(`${baseUrl}/api/v1/account/check`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      method: "GET",
       credentials: "include",
     });
 
@@ -75,9 +63,6 @@ export default function BoardPage({
     try {
       const response = await fetch(`${baseUrl}/api/v1/board/user/view/${id}`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
         credentials: "include",
       });
 

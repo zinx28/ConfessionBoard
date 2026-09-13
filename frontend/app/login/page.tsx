@@ -24,10 +24,7 @@ function LoginContent() {
     let baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     const accountCheck = await fetch(`${baseUrl}/api/v1/account/check`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      method: "GET",
       credentials: "include",
     });
 
