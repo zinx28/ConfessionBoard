@@ -8,7 +8,7 @@ Anonymous Confession Board - Create your own confession board and let others sha
 ## Features
 - Create a board with a title, description, theme and more!
 - Read confessions in a grid or in a fullscreen "book" view -- one message at a time (you can use arrow keys!!!!)
-- Share it!
+- Share it! (uses discord for logins)
 
 ## Getting Started
 
